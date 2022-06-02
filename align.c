@@ -55,17 +55,17 @@ static struct line *read_line(FILE *input_file, int delimiter) {
     struct line *result = NULL;
     char *delimiter_position = NULL;
     char *line = NULL;
-    size_t length = 0;
-    size_t max_length = 0;
+    size_t line_length = 0;
+    size_t max_line_length = 0;
     int ch;
 
     while ((ch = fgetc(input_file)) != EOF && ch != '\n') {
-        if (length >= max_length) {
-            line = xrealloc(line, max_length + 32);
-            max_length += 32;
+        if (line_length >= max_line_length) {
+            line = xrealloc(line, max_line_length + 32);
+            max_line_length += 32;
         }
 
-        line[length++] = ch;
+        line[line_length++] = ch;
     }
 
     /*
@@ -76,8 +76,8 @@ static struct line *read_line(FILE *input_file, int delimiter) {
         return NULL;
     }
 
-    line = xrealloc(line, length + 1);
-    line[length] = '\0';
+    line = xrealloc(line, line_length + 1);
+    line[line_length] = '\0';
 
     result = xcalloc(1, sizeof(*result));
 
