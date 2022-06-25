@@ -5,7 +5,8 @@
 #define BUFFER_SIZE 1024
 static char line[BUFFER_SIZE];
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     int width = 0;
 
     if (argc > 1) {
