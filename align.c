@@ -5,8 +5,7 @@
 
 #include <err.h>
 
-static void *xcalloc(size_t nmemb, size_t size)
-{
+static void *xcalloc(size_t nmemb, size_t size) {
     void *result = calloc(nmemb, size);
 
     if (result == NULL) {
@@ -16,8 +15,7 @@ static void *xcalloc(size_t nmemb, size_t size)
     return result;
 }
 
-static void *xrealloc(void *ptr, size_t size)
-{
+static void *xrealloc(void *ptr, size_t size) {
     void *result = realloc(ptr, size);
 
     if (result == NULL) {
@@ -27,8 +25,7 @@ static void *xrealloc(void *ptr, size_t size)
     return result;
 }
 
-static char *xstrdup(const char *str)
-{
+static char *xstrdup(const char *str) {
     char *result = NULL;
     size_t size;
 
@@ -54,8 +51,7 @@ struct line {
     size_t first_length;
 };
 
-static struct line *read_line(FILE *input_file, int delimiter)
-{
+static struct line *read_line(FILE *input_file, int delimiter) {
     struct line *result = NULL;
     char *delimiter_position = NULL;
     char *line = NULL;
@@ -109,8 +105,7 @@ static struct line *read_line(FILE *input_file, int delimiter)
     return result;
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     struct line *line = NULL;
     struct line **lines = NULL;
     size_t line_count = 0;
@@ -146,7 +141,7 @@ int main(int argc, char **argv)
 
         if (line->rest != NULL) {
             printf("%-*s%c%s\n", (int) max_first_length, line->first,
-                delimiter, line->rest);
+                   delimiter, line->rest);
             free(line->rest);
         } else {
             printf("%s\n", line->first);
