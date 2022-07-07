@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
 
         if (line->rest != NULL) {
             printf("%-*s%c%s\n", (int) max_first_length, line->first,
-                   delimiter, line->rest);
+                delimiter, line->rest);
             free(line->rest);
         } else {
             printf("%s\n", line->first);
