@@ -56,13 +56,13 @@ static struct line *read_line(FILE *input_file, int delimiter) {
     char *delimiter_position = NULL;
     char *line = NULL;
     size_t line_length = 0;
-    size_t max_line_length = 0;
+    size_t line_capacity = 0;
     int ch;
 
     while ((ch = fgetc(input_file)) != EOF && ch != '\n') {
-        if (line_length >= max_line_length) {
-            line = xrealloc(line, max_line_length + 32);
-            max_line_length += 32;
+        if (line_length >= line_capacity) {
+            line = xrealloc(line, line_capacity + 32);
+            line_capacity += 32;
         }
 
         line[line_length++] = ch;
@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
     struct line *line = NULL;
     struct line **lines = NULL;
     size_t line_count = 0;
-    size_t max_lines = 0;
+    size_t lines_capacity = 0;
     size_t max_first_length = 0;
     int delimiter = ' ';
     size_t i;
@@ -119,11 +119,11 @@ int main(int argc, char **argv) {
     }
 
     while ((line = read_line(stdin, delimiter)) != NULL) {
-        if (line_count >= max_lines) {
-            size_t new_max_lines = max_lines + 32;
+        if (line_count >= lines_capacity) {
+            size_t new_capacity = lines_capacity + 32;
 
-            lines = xrealloc(lines, sizeof(*lines) * new_max_lines);
-            max_lines = new_max_lines;
+            lines = xrealloc(lines, sizeof(*lines) * new_capacity);
+            lines_capacity = new_capacity;
         }
 
         /* Only align and get the max length if we have two parts. */
