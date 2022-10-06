@@ -5,44 +5,44 @@
 
 #include <err.h>
 
-static void *
-xcalloc(size_t nmemb, size_t size)
+static void *xcalloc(size_t nmemb, size_t size)
 {
-	void *ret;
+    void *result;
 
-	ret = calloc(nmemb, size);
-	if (ret == NULL)
-		errx(1, "calloc: out of memory.");
+    result = calloc(nmemb, size);
+    if (result == NULL) {
+        errx(1, "calloc: out of memory.");
+    }
 
-	return ret;
+    return result;
 }
 
-static void *
-xrealloc(void *ptr, size_t size)
+static void *xrealloc(void *ptr, size_t size)
 {
-	void *ret;
+    void *result;
 
-	ret = realloc(ptr, size);
-	if (ret == NULL)
-		errx(1, "realloc: out of memory.");
+    result = realloc(ptr, size);
+    if (result == NULL) {
+        errx(1, "realloc: out of memory.");
+    }
 
-	return ret;
+    return result;
 }
 
-static char *
-xstrdup(const char *str)
+static char *xstrdup(const char *str)
 {
-	char *ret;
-	size_t size;
+    char *result;
+    size_t size;
 
-	if (str == NULL)
-		return NULL;
+    if (str == NULL) {
+        return NULL;
+    }
 
-	size = strlen(str) + 1;
-	ret = xcalloc(1, size);
-	memcpy(ret, str, size);
+    size = strlen(str) + 1;
+    result = xcalloc(1, size);
+    memcpy(result, str, size);
 
-	return ret;
+    return result;
 }
 
 /*
@@ -51,108 +51,114 @@ xstrdup(const char *str)
  * calculate the alignment.
  */
 struct line {
-	char *first;
-	char *rest;
-	size_t firstlen;
+    char *first;
+    char *rest;
+    size_t first_length;
 };
 
-static struct line *
-readline(FILE *f, int delimiter)
+static struct line *readline(FILE *f, int delimiter)
 {
-	struct line *ret;
-	char *dpos, *line = NULL;
-	size_t len = 0, maxlen = 0;
-	int ch;
+    struct line *result = NULL;
+    char *dot_position = NULL;
+    char *line = NULL;
+    size_t line_length = 0;
+    size_t max_line_length = 0;
+    int ch;
 
-	while ((ch = fgetc(f)) != EOF && ch != '\n') {
-		if (len >= maxlen) {
-			line = xrealloc(line, maxlen + 32);
-			maxlen += 32;
-		}
+    while ((ch = fgetc(f)) != EOF && ch != '\n') {
+        if (line_length >= max_line_length) {
+            line = xrealloc(line, max_line_length + 32);
+            max_line_length += 32;
+        }
 
-		line[len++] = ch;
-	}
+        line[line_length++] = ch;
+    }
 
-	/*
-	 * We should be able to read empty lines so
-	 * only return NULL if at end of file.
-	 */
-	if (line == NULL && ch == EOF)
-		return NULL;
+    /*
+     * We should be able to read empty lines so
+     * only return NULL if at end of file.
+     */
+    if (line == NULL && ch == EOF) {
+        return NULL;
+    }
 
-	line = xrealloc(line, len + 1);
-	line[len] = '\0';
+    line = xrealloc(line, line_length + 1);
+    line[line_length] = '\0';
 
-	ret = xcalloc(1, sizeof(*ret));
+    result = xcalloc(1, sizeof(*result));
 
-	/*
-	 * Split the line into a first and rest part.  If no delimiter is
-	 * found first will contain the full line (which may be the empty
-	 * string).
-	 */
-	dpos = strchr(line, delimiter);
+    /*
+     * Split the line into a first and rest part.  If no delimiter is
+     * found first will contain the full line (which may be the empty
+     * string).
+     */
+    dot_position = strchr(line, delimiter);
 
-	if (dpos != NULL) {
-		char *rest = dpos + 1;
+    if (dot_position != NULL) {
+        char *rest = dot_position + 1;
 
-		*dpos = '\0';
+        *dot_position = '\0';
 
-		if (*rest != '\0')
-			ret->rest = xstrdup(rest);
-	}
+        if (*rest != '\0') {
+            result->rest = xstrdup(rest);
+        }
+    }
 
-	ret->first = xstrdup(line);
-	ret->firstlen = strlen(line);
-	free(line);
+    result->first = xstrdup(line);
+    result->first_length = strlen(line);
+    free(line);
 
-	return ret;
+    return result;
 }
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
-	struct line *line, **lines = NULL;
-	size_t nlines = 0, maxlines = 0;
-	size_t maxfirstlen = 0;
-	int delimiter = ' ';
-	size_t i;
+    struct line *line = NULL;
+    struct line **lines = NULL;
+    size_t lines_count = 0;
+    size_t max_lines = 0;
+    size_t max_first_length = 0;
+    int delimiter = ' ';
+    size_t i;
 
-	if (argc == 2)
-		delimiter = argv[1][0];
+    if (argc == 2) {
+        delimiter = argv[1][0];
+    }
 
-	while ((line = readline(stdin, delimiter)) != NULL) {
-		if (nlines >= maxlines) {
-			size_t newmax = maxlines + 32;
+    while ((line = readline(stdin, delimiter)) != NULL) {
+        if (lines_count >= max_lines) {
+            size_t new_max = max_lines + 32;
 
-			lines = xrealloc(lines, sizeof(*lines) * newmax);
-			maxlines = newmax;
-		}
+            lines = xrealloc(lines, sizeof(*lines) * new_max);
+            max_lines = new_max;
+        }
 
-		/* Only align and get the max length if we have two parts. */
-		if (line->rest != NULL && line->firstlen > maxfirstlen)
-			maxfirstlen = line->firstlen;
+        /* Only align and get the max length if we have two parts. */
+        if (line->rest != NULL && line->first_length > max_first_length) {
+            max_first_length = line->first_length;
+        }
 
-		lines[nlines++] = line;
-	}
+        lines[lines_count++] = line;
+    }
 
-	lines = xrealloc(lines, sizeof(*lines) * nlines);
+    lines = xrealloc(lines, sizeof(*lines) * lines_count);
 
-	for (i = 0; i < nlines; ++i) {
-		struct line *line = lines[i];
+    for (i = 0; i < lines_count; ++i) {
+        struct line *line = lines[i];
 
-		if (line->rest != NULL) {
-			printf("%-*s%c%s\n", (int) maxfirstlen, line->first,
-			    delimiter, line->rest);
-			free(line->rest);
-		} else
-			printf("%s\n", line->first);
+        if (line->rest != NULL) {
+            printf("%-*s%c%s\n", (int) max_first_length, line->first,
+                   delimiter, line->rest);
+            free(line->rest);
+        } else {
+            printf("%s\n", line->first);
+        }
 
-		free(line->first);
-		free(line);
-	}
+        free(line->first);
+        free(line);
+    }
 
-	free(lines);
+    free(lines);
 
-	return 0;
+    return 0;
 }
-
