@@ -17,11 +17,12 @@ int main(int argc, char **argv)
     }
 
     while (fgets(line, sizeof(line), stdin) != NULL) {
-        size_t len, offset;
+        size_t length;
+        size_t offset;
 
-        len = strlen(line);
-        offset = (width - len) / 2;
-        printf("%*s", (int) (offset + len), line);
+        length = strlen(line);
+        offset = (width - length) / 2;
+        printf("%*s", (int) (offset + length), line);
     }
 
     return 0;
