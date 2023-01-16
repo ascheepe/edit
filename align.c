@@ -7,31 +7,31 @@
 
 static void *xcalloc(size_t nmemb, size_t size)
 {
-    void *result;
+    void *ptr;
 
-    result = calloc(nmemb, size);
-    if (result == NULL) {
+    ptr = calloc(nmemb, size);
+    if (ptr == NULL) {
         errx(1, "calloc: out of memory.");
     }
 
-    return result;
+    return ptr;
 }
 
 static void *xrealloc(void *ptr, size_t size)
 {
-    void *result;
+    void *new_ptr;
 
-    result = realloc(ptr, size);
-    if (result == NULL) {
+    new_ptr = realloc(ptr, size);
+    if (new_ptr == NULL) {
         errx(1, "realloc: out of memory.");
     }
 
-    return result;
+    return new_ptr;
 }
 
 static char *xstrdup(const char *str)
 {
-    char *result;
+    char *str_copy;
     size_t size;
 
     if (str == NULL) {
@@ -39,10 +39,10 @@ static char *xstrdup(const char *str)
     }
 
     size = strlen(str) + 1;
-    result = xcalloc(1, size);
-    memcpy(result, str, size);
+    str_copy = xcalloc(1, size);
+    memcpy(str_copy, str, size);
 
-    return result;
+    return str_copy;
 }
 
 /*
@@ -56,16 +56,16 @@ struct line {
     size_t first_length;
 };
 
-static struct line *readline(FILE *f, int delimiter)
+static struct line *get_line(FILE *input_file, int delimiter)
 {
     struct line *result = NULL;
-    char *dot_position = NULL;
+    char *delimiter_position = NULL;
     char *line = NULL;
     size_t line_length = 0;
     size_t max_line_length = 0;
     int ch;
 
-    while ((ch = fgetc(f)) != EOF && ch != '\n') {
+    while ((ch = fgetc(input_file)) != EOF && ch != '\n') {
         if (line_length >= max_line_length) {
             line = xrealloc(line, max_line_length + 32);
             max_line_length += 32;
@@ -92,12 +92,12 @@ static struct line *readline(FILE *f, int delimiter)
      * found first will contain the full line (which may be the empty
      * string).
      */
-    dot_position = strchr(line, delimiter);
+    delimiter_position = strchr(line, delimiter);
 
-    if (dot_position != NULL) {
-        char *rest = dot_position + 1;
+    if (delimiter_position != NULL) {
+        char *rest = delimiter_position + 1;
 
-        *dot_position = '\0';
+        *delimiter_position = '\0';
 
         if (*rest != '\0') {
             result->rest = xstrdup(rest);
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
         delimiter = argv[1][0];
     }
 
-    while ((line = readline(stdin, delimiter)) != NULL) {
+    while ((line = get_line(stdin, delimiter)) != NULL) {
         if (lines_count >= max_lines) {
             size_t new_max = max_lines + 32;
 
@@ -162,3 +162,4 @@ int main(int argc, char **argv)
 
     return 0;
 }
+
