@@ -159,7 +159,7 @@ main(int argc, char **argv)
 
 		line = new_line();
 		dpos = strchr(str->txt, delim);
-		if (dpos != NULL && dpos[1] != '\n') {
+		if (dpos != NULL && dpos[1] != '\0') {
 			*dpos = '\0';
 			line->left = new_string(str->txt);
 			line->right = new_string(&dpos[1]);
