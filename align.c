@@ -4,8 +4,6 @@
 #include <ctype.h>
 #include <err.h>
 
-#define TABSIZE (8)
-
 static void *
 xmalloc(size_t size)
 {
@@ -30,19 +28,37 @@ xrealloc(void *ptr, size_t size)
 	return new_ptr;
 }
 
+char *
+xstrdup(const char *str)
+{
+	size_t len;
+	char *dup;
+
+	len = strlen(str) + 1;
+	dup = xmalloc(len);
+	memcpy(dup, str, len);
+
+	return dup;
+}
+
 struct string {
 	char *txt;
 	size_t len;
 };
 
 static struct string *
-new_string(void)
+new_string(const char *cstr)
 {
 	struct string *str;
 
 	str = xmalloc(sizeof(*str));
-	str->txt = NULL;
-	str->len = 0;
+	if (cstr != NULL) {
+		str->txt = xstrdup(cstr);
+		str->len = strlen(str->txt);
+	} else {
+		str->txt = NULL;
+		str->len = 0;
+	}
 
 	return str;
 }
@@ -61,7 +77,7 @@ read_string(FILE *fp)
 	size_t cap;
 	int ch;
 
-	str = new_string();
+	str = new_string(NULL);
 	cap = 0;
 
 	while ((ch = fgetc(fp)) != EOF && ch != '\n') {
@@ -90,63 +106,92 @@ write_string(const struct string *str, FILE *fp)
 	fputc('\n', fp);
 }
 
+struct line {
+	struct string *left;
+	struct string *right;
+};
+
+struct line *
+new_line(void)
+{
+	struct line *r;
+
+	r = xmalloc(sizeof(*r));
+	r->left = NULL;
+	r->right = NULL;
+
+	return r;
+}
+
+void
+free_line(struct line *line)
+{
+	if (line->left)
+		free_string(line->left);
+	if (line->right)
+		free_string(line->right);
+	free(line);
+}
+
 int
 main(int argc, char **argv)
 {
-	struct string **lines = NULL;
+	struct line **lines = NULL;
 	size_t nlines = 0;
 	size_t cap = 0;
 
-	struct string *line;
+	struct string *str;
 	size_t maxlen = 0;
 
 	int delimiter = ' ';
 	size_t i;
-	char *p;
 
 	if (argc == 2)
 		delimiter = argv[1][0];
 
-	/* Read all the things! */
-	while ((line = read_string(stdin)) != NULL) {
+	/*
+	 * Read a string from stdin, split it by a delimiter
+	 * and keep track of the length of the first part.
+	 */
+	while ((str = read_string(stdin)) != NULL) {
+		struct line *line;
+		char *dpos;
+
+		line = new_line();
+		dpos = strchr(str->txt, delimiter);
+		if (dpos != NULL && dpos[1] != '\n') {
+			*dpos = '\0';
+			line->left = new_string(str->txt);
+			line->right = new_string(&dpos[1]);
+			*dpos = delimiter;
+			if (line->left->len > maxlen)
+				maxlen = line->left->len;
+		} else
+			line->left = new_string(str->txt);
+
 		if (nlines >= cap) {
 			lines = xrealloc(lines, sizeof(*lines) * (cap + 32));
 			cap += 32;
 		}
 		lines[nlines++] = line;
+
+		free_string(str);
 	}
 	lines = xrealloc(lines, sizeof(*lines) * nlines);
 
-	/* Find the maximum length of a string before the delimiter. */
+	/* Print aligned strings and free them. */
 	for (i = 0; i < nlines; ++i) {
-		line = lines[i];
-		p = strchr(line->txt, delimiter);
-		if (p != NULL) {
-			size_t len;
+		struct line *line = lines[i];
 
-			*p = '\0';
-			len = strlen(line->txt);
-			if (len > maxlen)
-				maxlen = len;
-			*p = delimiter;
-		}
+		if (line->right)
+			printf("%-*s%c%s\n", (int)maxlen, line->left->txt,
+			    delimiter, line->right->txt);
+		else
+			write_string(line->left, stdout);
+
+		free_line(lines[i]);
 	}
 
-	/* Align strings which have a delimiter. */
-	for (i = 0; i < nlines; ++i) {
-		line = lines[i];
-		p = strchr(line->txt, delimiter);
-		if (p != NULL && p[1] != '\n') {
-			*p = '\0';
-			printf("%-*s%c%s\n", (int)maxlen,
-			    line->txt, delimiter, &p[1]);
-			*p = delimiter;
-		} else
-			write_string(line, stdout);
-	}
-
-	for (i = 0; i < nlines; ++i)
-		free_string(lines[i]);
 	free(lines);
 
 	return 0;
