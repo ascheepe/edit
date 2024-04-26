@@ -1,4 +1,4 @@
 #! /bin/sh
-limit=${1:-80}
+maxlen=${1:-80}
 
-expand | awk -v limit="$limit" 'length($0) >= limit { print NR, $0 }'
+expand | awk -v maxlen="$maxlen" 'length($0) >= maxlen { print NR, $0 }'
