@@ -28,7 +28,7 @@ xrealloc(void *ptr, size_t size)
 	return new_ptr;
 }
 
-char *
+static char *
 xstrdup(const char *str)
 {
 	size_t len;
@@ -111,7 +111,7 @@ struct line {
 	struct string *right;
 };
 
-struct line *
+static struct line *
 new_line(void)
 {
 	struct line *r;
@@ -123,7 +123,7 @@ new_line(void)
 	return r;
 }
 
-void
+static void
 free_line(struct line *line)
 {
 	if (line->left)
