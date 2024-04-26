@@ -143,11 +143,11 @@ main(int argc, char **argv)
 	struct string *str;
 	size_t maxlen = 0;
 
-	int delimiter = ' ';
+	int delim = ' ';
 	size_t i;
 
 	if (argc == 2)
-		delimiter = argv[1][0];
+		delim = argv[1][0];
 
 	/*
 	 * Read a string from stdin, split it by a delimiter
@@ -158,12 +158,12 @@ main(int argc, char **argv)
 		char *dpos;
 
 		line = new_line();
-		dpos = strchr(str->txt, delimiter);
+		dpos = strchr(str->txt, delim);
 		if (dpos != NULL && dpos[1] != '\n') {
 			*dpos = '\0';
 			line->left = new_string(str->txt);
 			line->right = new_string(&dpos[1]);
-			*dpos = delimiter;
+			*dpos = delim;
 			if (line->left->len > maxlen)
 				maxlen = line->left->len;
 		} else
@@ -185,7 +185,7 @@ main(int argc, char **argv)
 
 		if (line->right)
 			printf("%-*s%c%s\n", (int)maxlen, line->left->txt,
-			    delimiter, line->right->txt);
+			    delim, line->right->txt);
 		else
 			write_string(line->left, stdout);
 
