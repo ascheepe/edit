@@ -30,22 +30,6 @@ xrealloc(void *ptr, size_t size)
 	return new_ptr;
 }
 
-static char *
-xstrdup(const char *str)
-{
-	char *dup;
-	size_t size;
-
-	if (str == NULL)
-		return NULL;
-
-	size = strlen(str) + 1;
-	dup = xmalloc(size);
-	memcpy(dup, str, size);
-
-	return dup;
-}
-
 struct string {
 	char *txt;
 	size_t len;
@@ -106,7 +90,6 @@ write_string(const struct string *str, FILE *fp)
 	fputc('\n', fp);
 }
 
-static size_t
 int
 main(int argc, char **argv)
 {
