@@ -133,6 +133,13 @@ free_line(struct line *line)
 	free(line);
 }
 
+static void
+write_line(struct line *line, size_t maxlen, int delim)
+{
+	printf("%-*s%c%s\n", (int)maxlen, line->left->txt, delim,
+	    line->right->txt);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -184,8 +191,7 @@ main(int argc, char **argv)
 		struct line *line = lines[i];
 
 		if (line->right)
-			printf("%-*s%c%s\n", (int)maxlen, line->left->txt,
-			    delim, line->right->txt);
+			write_line(line, maxlen, delim);
 		else
 			write_string(line->left, stdout);
 
