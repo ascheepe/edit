@@ -31,12 +31,12 @@ xrealloc(void *ptr, size_t size)
 static char *
 xstrdup(const char *str)
 {
-	size_t len;
+	size_t size;
 	char *dup;
 
-	len = strlen(str) + 1;
-	dup = xmalloc(len);
-	memcpy(dup, str, len);
+	size = strlen(str) + 1;
+	dup = xmalloc(size);
+	memcpy(dup, str, size);
 
 	return dup;
 }
