@@ -114,13 +114,13 @@ struct line {
 static struct line *
 new_line(void)
 {
-	struct line *r;
+	struct line *line;
 
-	r = xmalloc(sizeof(*r));
-	r->left = NULL;
-	r->right = NULL;
+	line = xmalloc(sizeof(*line));
+	line->left = NULL;
+	line->right = NULL;
 
-	return r;
+	return line;
 }
 
 static void
