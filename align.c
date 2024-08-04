@@ -171,7 +171,7 @@ main(int argc, char **argv)
 		if (dpos != NULL && dpos != str->txt && dpos[1] != '\0') {
 			*dpos = '\0';
 			line->left = new_string(str->txt);
-			line->right = new_string(&dpos[1]);
+			line->right = new_string(dpos + 1);
 			*dpos = delim;
 			if (line->left->len > maxlen)
 				maxlen = line->left->len;
